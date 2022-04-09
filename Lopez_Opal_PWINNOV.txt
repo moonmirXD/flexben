@@ -1,0 +1,20 @@
+Employee Name: Lopez, Opal
+Employee Number: 12035
+Date Submitted: null
+Transaction Number: none
+Amount: 
+
+=== DETAILS ===
+CATEGORY: MEDICAL Claim Category
+
+Item # 1
+Date: 2022-04-10
+OR Number: 239293
+Name of Establishment: new
+TIN of Establishment: new
+Amount: 500.0
+Status: draft
+
+
+CATEGORY: PPLIANCE Claim Category
+

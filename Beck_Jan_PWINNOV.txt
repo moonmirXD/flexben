@@ -1,0 +1,11 @@
+Employee Name: Beck, Jan
+Employee Number: 12034
+Date Submitted: null
+Transaction Number: none
+Amount: 
+
+=== DETAILS ===
+CATEGORY: MEDICAL Claim Category
+
+CATEGORY: PPLIANCE Claim Category
+
