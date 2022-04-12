@@ -3,12 +3,13 @@ package com.pluralsight.cmdline.bean;
 import java.util.Date;
 
 public class Reimbursement extends ReimbursementDetail{
-    int flexReimbursementId, employeeId, flexCutOffId, transactionNumber;
+    int flexReimbursementId, employeeId, flexCutOffId;
     double totalReimbursementAmount;
     Date dateSubmitted, dateUpdated;
-    String status;
+    String status, transactionNumber;
 
-    public Reimbursement(int flexReimbursementId, int employeeId, int flexCutOffId, int transactionNumber, double totalReimbursementAmount, Date dateSubmitted, String status) {
+    public Reimbursement(int flexReimbursementId, int employeeId, int flexCutOffId, String transactionNumber,
+                         double totalReimbursementAmount, Date dateSubmitted, String status) {
         this.flexReimbursementId = flexReimbursementId;
         this.employeeId = employeeId;
         this.flexCutOffId = flexCutOffId;
@@ -21,7 +22,7 @@ public class Reimbursement extends ReimbursementDetail{
     public Reimbursement(int flexReimbursementId,
                          int employeeId,
                          int flexCutOffId,
-                         int transactionNumber,
+                         String transactionNumber,
                          double totalReimbursementAmount,
                          Date dateSubmitted,
                          String status,
@@ -56,7 +57,7 @@ public class Reimbursement extends ReimbursementDetail{
         return flexCutOffId;
     }
 
-    public int getTransactionNumber() {
+    public String getTransactionNumber() {
         return transactionNumber;
     }
 

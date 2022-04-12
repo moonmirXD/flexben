@@ -7,5 +7,41 @@ Amount:
 === DETAILS ===
 CATEGORY: MEDICAL Claim Category
 
+Item # 1
+Date: 2022-04-10
+OR Number: 232211
+Name of Establishment: Mercury Drugs Store
+TIN of Establishment: 230229-232
+Amount: 1800.0
+Status: submitted
+
+
+Item # 5
+Date: 2022-04-10
+OR Number: 231211
+Name of Establishment: Test Establishment
+TIN of Establishment: Test Tin
+Amount: 9900.0
+Status: submitted
+
+
+Item # 7
+Date: 2022-04-10
+OR Number: 123111
+Name of Establishment: Eat food
+TIN of Establishment: eat food
+Amount: 700.0
+Status: submitted
+
+
 CATEGORY: PPLIANCE Claim Category
+
+Item # 10
+Date: 2022-04-10
+OR Number: 21111
+Name of Establishment: New year22
+TIN of Establishment: 9221022
+Amount: 500.0
+Status: draft
+
 

@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class AuthenticationDao {
+public class AuthenticationDao implements   AuthenticationDaoInterface {
     ArrayList<Account> accounts = new ArrayList<Account>();
     static Company company = new Company();
 

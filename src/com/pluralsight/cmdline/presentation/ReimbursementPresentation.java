@@ -8,6 +8,8 @@ import com.pluralsight.cmdline.bean.Reimbursement;
 import com.pluralsight.cmdline.manager.ReimbursementManager;
 
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ReimbursementPresentation {
@@ -16,6 +18,9 @@ public class ReimbursementPresentation {
     private ArrayList<Category> categories = new ArrayList<>();
     private ArrayList<Category> reimbursementRemoveList = new ArrayList<>();
     private static HashMap<String, String> reimbursement = new HashMap<String, String>();
+
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    Date date = new Date();
 
     private static final String[] fields = {"Category ID", "Date", "OR Number", "Name of Establishment", "TIN of " +
             "Establishment", "Amount"};
@@ -53,8 +58,12 @@ public class ReimbursementPresentation {
         }
     }
 
-    private void generateForm(){
+    public void generateForm(){
         Account user = Authentication.getUser();
+        List<Reimbursement> list = reimbursementManager.getReimbursements();
+
+        double totalAmount = reimbursementManager.getTotalAmount();
+
         try {
             PrintWriter out =
                     new PrintWriter(user.getLastName()+ "_" + user.getFirstName() + "_" + Authentication.getCompany().getCode() +".txt");
@@ -63,15 +72,13 @@ public class ReimbursementPresentation {
             out.println("Employee Number: " + user.getEmployeeNumber());
             out.println("Date Submitted: " + user.getDateUpdated()); // change this to submitted
             out.println("Transaction Number: " + "none");
-            out.println("Amount: \n"); // Change this to total amount
+            out.println("Amount: " + totalAmount + "\n"); // Change this to total amount
 
             out.println("=== DETAILS ===");
 
             if(categories.isEmpty()){
                 categories = reimbursementManager.getCategory();
             }
-
-            List<Reimbursement> list = reimbursementManager.getReimbursements();
 
             if(list != null) {
                 list.clear();
@@ -84,17 +91,18 @@ public class ReimbursementPresentation {
                     for (Reimbursement act: finalList){
                         if(category.getCategoryId() == act.getCategoryId()) {
                             out.println("Item # " + act.getFlexReimbursementId());
-                            out.println("Date: " + act.getDateSubmitted());
+                            out.println("Date: " + act.getDateAdded());
                             out.println("OR Number: " + act.getOrNumber());
                             out.println("Name of Establishment: " + act.getNameOfEstablishment());
                             out.println("TIN of Establishment: " + act.getTinOfEstablishment());
                             out.println("Amount: " + act.getAmount());
                             out.println("Status: " + act.getStatus());
+                            out.println("Transaction Number: " + act.getTransactionNumber());
                             out.println("\n");
                         }
                     }
             });
-
+            showMessage("Form is generated!" + " " + user.getLastName()+ "_" + user.getFirstName() + "_" + Authentication.getCompany().getCode() +".txt");
             out.close();
         }catch(Exception e) {
             ErrorHandler.throwError("There's a problem in generating text file!", 500);
@@ -107,7 +115,15 @@ public class ReimbursementPresentation {
         showMessage("To exit press any number but not the item number.");
         showMessage("Please enter the item #:");
         String flexReimbursementId = addInput();
-        reimbursementManager.updateReimbursement(flexReimbursementId);
+
+        showMessage("Are you sure you want to submit #" + flexReimbursementId + " item? [y/n]");
+        String confirmation = addInput();
+
+        if(confirmation.equalsIgnoreCase("y")) {
+            reimbursementManager.updateReimbursement(flexReimbursementId);
+        } else {
+            showMessage("Try again!");
+        }
     }
 
 
@@ -117,7 +133,15 @@ public class ReimbursementPresentation {
         showMessage("To exit press any number but not the item number.");
         showMessage("Please enter the item #:");
         String flexReimbursementId = addInput();
-        reimbursementManager.deleteReimbursement(flexReimbursementId);
+        showMessage("Are you sure you want to remove #" + flexReimbursementId + " item? [y/n]");
+        String confirmation = addInput();
+
+        if(confirmation.equalsIgnoreCase("y")) {
+            reimbursementManager.deleteReimbursement(flexReimbursementId);
+        } else {
+            showMessage("Try again!");
+        }
+
     }
 
     private void displayReimbursementItems(){
@@ -133,6 +157,7 @@ public class ReimbursementPresentation {
         list.forEach(item -> {
             System.out.println(
                     "Item #" + item.getFlexReimbursementId()
+                            + "\nDate Submitted: " +item.getDateAdded()
                             + "\nOR Number: " + item.getOrNumber()
                             + "\nName of Establishment: " + item.getNameOfEstablishment()
                             + "\nTin of Establishment: " + item.getTinOfEstablishment()
@@ -170,6 +195,10 @@ public class ReimbursementPresentation {
 
                 String input = addInput();
 
+                if(f.equals("Date")) {
+                    input = validateDate(input);
+                }
+
                 if(f.equals("Amount") && Double.parseDouble(input) < 500) {
                     while(Double.parseDouble(input) < 500) {
                         showMessage("Amount must be 500 or higher. \nAmount:");
@@ -184,6 +213,14 @@ public class ReimbursementPresentation {
         catch(Exception e) {
             ErrorHandler.throwError("*addReimbursementItem* There's wrong in the input", 400);
         }
+    }
+
+    private String validateDate(String input){
+        while(input.compareTo(dateFormat.format(date)) > 0) {
+            showMessage("The date is invalid. Please enter again the specified date in following format yyyy-mm-dd: ");
+            input = addInput();
+        }
+        return input;
     }
 
     private void displayCategories(){

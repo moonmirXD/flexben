@@ -78,9 +78,14 @@ public class ReimbursementDao {
                             statement.setDouble(5, Double.parseDouble(reimbursement.get("Amount")));
                             statement.setInt(6, Integer.parseInt(reimbursement.get("Category ID")));
                             statement.setString(7, "draft");
-                            statement.setString(8, dtf.format(now));
+                            statement.setString(8, reimbursement.get("Date"));
 
-                            statement.executeUpdate();
+                            int affRows = statement.executeUpdate();
+                            if (affRows == 0) {
+                                throw new SQLException("Creating flex reimbursement details failed, no rows affected." +
+                                        " Invalid" +
+                                        " inputs.");
+                            }
                             connection.commit();
                         }
                     } else {
@@ -113,13 +118,16 @@ public class ReimbursementDao {
         }
     }
 
-    public void updateReimbursement(int id) {
+    public void updateReimbursement(int id, String transactionNumber) {
         try {
             Connection connection = MySqlConnection.getConnection();
             Statement stmt= connection.createStatement();
-            stmt.executeUpdate("UPDATE flex_reimbursement_detail SET status = 'submitted' WHERE flex_reimbursement_id =" +
+            stmt.executeUpdate("UPDATE flex_reimbursement_detail SET status = 'submitted'" +
+                    " WHERE flex_reimbursement_id =" +
                     " " + id);
-            stmt.executeUpdate("UPDATE flex_reimbursement SET status = 'submitted' WHERE flex_reimbursement_id = " + id);
+            stmt.executeUpdate("UPDATE flex_reimbursement SET status = 'submitted', transaction_number = '" + transactionNumber +
+                    "' WHERE " +
+                    "flex_reimbursement_id = " + id);
             System.out.println("Successfully updated!");
             connection.close();
         } catch (Exception e) {
@@ -129,21 +137,26 @@ public class ReimbursementDao {
 
 
     public List<Reimbursement> getReimbursements(){
+        String sql = "SELECT * FROM flex_reimbursement INNER JOIN " +
+                "flex_reimbursement_detail ON flex_reimbursement.flex_reimbursement_id = " +
+                "flex_reimbursement_detail.flex_reimbursement_detail_id";
         try {
             Account user = Authentication.getUser();
 
+            if(user.getRoleName().equalsIgnoreCase("Employee")) {
+                sql += " WHERE employee_id = " + user.getEmployeeId();
+            }
+
             Connection connection = MySqlConnection.getConnection();
             Statement stmt= connection.createStatement();
-            ResultSet rs=stmt.executeQuery("SELECT * FROM flex_reimbursement INNER JOIN " +
-                    "flex_reimbursement_detail ON flex_reimbursement.flex_reimbursement_id = " +
-                    "flex_reimbursement_detail.flex_reimbursement_detail_id WHERE employee_id = " + user.getEmployeeId());
+            ResultSet rs=stmt.executeQuery(sql);
             while(rs.next()) {
                 reimbursements.add(
                         new Reimbursement(
                                 rs.getInt("flex_reimbursement_id"),
                                 rs.getInt("employee_id"),
                                 rs.getInt("flex_cut_off_id"),
-                                rs.getInt("transaction_number"),
+                                rs.getString("transaction_number"),
                                 rs.getDouble("total_reimbursement_amount"),
                                 rs.getDate("date_submitted"),
                                 rs.getString("status"),
