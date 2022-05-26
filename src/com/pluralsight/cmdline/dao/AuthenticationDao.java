@@ -7,6 +7,7 @@ import com.pluralsight.cmdline.bean.Company;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -15,8 +16,10 @@ public class AuthenticationDao implements   AuthenticationDaoInterface {
     static Company company = new Company();
 
     {
+        Connection connection = MySqlConnection.getConnection();
+
         try {
-            Connection connection = MySqlConnection.getConnection();
+
             Statement stmt= connection.createStatement();
             ResultSet rs=stmt.executeQuery("SELECT * FROM account INNER JOIN employee ON account.employee_id = employee.employee_id INNER JOIN role ON employee.role_id = role.role_id");
 
@@ -36,10 +39,16 @@ public class AuthenticationDao implements   AuthenticationDaoInterface {
                         rs.getString("description")
                         ));
             }
-            connection.close();
         } catch (Exception e) {
             ErrorHandler.throwError(String.valueOf(e), 502);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     public static Company getCompany(int companyId){

@@ -1,5 +1,6 @@
 package com.pluralsight.cmdline;
 
+import com.pluralsight.cmdline.bean.Account;
 import com.pluralsight.cmdline.bean.Authentication;
 import com.pluralsight.cmdline.bean.Reimbursement;
 import com.pluralsight.cmdline.manager.ReimbursementManager;
@@ -144,7 +145,7 @@ public class Main {
         String monthlyRate = addInput();
 
         double flexPoints = (Double.parseDouble(monthlyRate)/21.75) * Double.parseDouble(numberOfFlexCredits);
-        System.out.printf("Flex points: %.2f", flexPoints);
+        System.out.printf("Flex points: %.2f \n", flexPoints);
     }
 
     private static String addInput(){

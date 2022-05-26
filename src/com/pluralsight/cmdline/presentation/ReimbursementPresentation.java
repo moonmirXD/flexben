@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReimbursementPresentation {
     private ReimbursementManager reimbursementManager = new ReimbursementManager();
@@ -62,17 +63,21 @@ public class ReimbursementPresentation {
         Account user = Authentication.getUser();
         List<Reimbursement> list = reimbursementManager.getReimbursements();
 
+        Optional<Reimbursement> getFirstReimbursement =
+                reimbursementManager.getReimbursements().stream().filter(reimbursement -> reimbursement.getEmployeeId() == user.getEmployeeId()).findFirst();
+
         double totalAmount = reimbursementManager.getTotalAmount();
 
         try {
             PrintWriter out =
                     new PrintWriter(user.getLastName()+ "_" + user.getFirstName() + "_" + Authentication.getCompany().getCode() +".txt");
 
-            out.println("Employee Name: " +  user.getLastName() + ", " + user.getFirstName());
             out.println("Employee Number: " + user.getEmployeeNumber());
-            out.println("Date Submitted: " + user.getDateUpdated()); // change this to submitted
-            out.println("Transaction Number: " + "none");
-            out.println("Amount: " + totalAmount + "\n"); // Change this to total amount
+            out.println("Employee Name: " +  user.getLastName() + ", " + user.getFirstName());
+            out.println("Date Submitted: " + getFirstReimbursement.get().getDateSubmitted());
+            out.println("Transaction Number: " + getFirstReimbursement.get().getTransactionNumber());
+            out.println("Amount: Php " + totalAmount);
+            out.println("Status: " + getFirstReimbursement.get().getStatus() + "\n");
 
             out.println("=== DETAILS ===");
 
@@ -90,14 +95,13 @@ public class ReimbursementPresentation {
                 out.println("CATEGORY: " + category.getName() + "\n");
                     for (Reimbursement act: finalList){
                         if(category.getCategoryId() == act.getCategoryId()) {
-                            out.println("Item # " + act.getFlexReimbursementId());
+                            out.println("Item # " + act.getFlexReimbursementDetailId());
                             out.println("Date: " + act.getDateAdded());
                             out.println("OR Number: " + act.getOrNumber());
                             out.println("Name of Establishment: " + act.getNameOfEstablishment());
                             out.println("TIN of Establishment: " + act.getTinOfEstablishment());
-                            out.println("Amount: " + act.getAmount());
+                            out.println("Amount: Php " + act.getAmount());
                             out.println("Status: " + act.getStatus());
-                            out.println("Transaction Number: " + act.getTransactionNumber());
                             out.println("\n");
                         }
                     }
@@ -110,71 +114,67 @@ public class ReimbursementPresentation {
     }
 
     private void submitReimbursementItem(){
-        displayReimbursementItems();
+        List<Reimbursement> list = reimbursementManager.getReimbursements().stream().filter(item -> item.getStatus().equalsIgnoreCase(
+                "draft")).collect(Collectors.toList());
 
-        showMessage("To exit press any number but not the item number.");
-        showMessage("Please enter the item #:");
-        String flexReimbursementId = addInput();
-
-        showMessage("Are you sure you want to submit #" + flexReimbursementId + " item? [y/n]");
-        String confirmation = addInput();
-
-        if(confirmation.equalsIgnoreCase("y")) {
-            reimbursementManager.updateReimbursement(flexReimbursementId);
+        if(list.isEmpty()) {
+            ErrorHandler.throwError("Please file reimbursement first!", 400);
         } else {
-            showMessage("Try again!");
+            showMessage("Are you sure you want to submit [y/n]");
+            String confirmation = addInput();
+
+            if(confirmation.equalsIgnoreCase("y")) {
+                reimbursementManager.updateReimbursement();
+            } else {
+                showMessage("Try again!");
+            }
         }
     }
 
 
     private void removeReimbursementItem(){
-        displayReimbursementItems();
+        List<Reimbursement> list = reimbursementManager.getReimbursements().stream().filter(item -> item.getStatus().equalsIgnoreCase(
+                "draft")).collect(Collectors.toList());
 
-        showMessage("To exit press any number but not the item number.");
-        showMessage("Please enter the item #:");
-        String flexReimbursementId = addInput();
-        showMessage("Are you sure you want to remove #" + flexReimbursementId + " item? [y/n]");
-        String confirmation = addInput();
-
-        if(confirmation.equalsIgnoreCase("y")) {
-            reimbursementManager.deleteReimbursement(flexReimbursementId);
-        } else {
-            showMessage("Try again!");
+        if(list.isEmpty()) {
+            ErrorHandler.throwError("Please file reimbursement first!", 400);
         }
+        else {
+            displayReimbursementItems();
+            showMessage("To exit press any number but not the item number.");
+            showMessage("Please enter the item #:");
+            String flexReimbursementDetailId = addInput();
+            showMessage("Are you sure you want to remove #" + flexReimbursementDetailId + " item? [y/n]");
+            String confirmation = addInput();
 
+            if(confirmation.equalsIgnoreCase("y")) {
+                reimbursementManager.deleteReimbursement(flexReimbursementDetailId);
+            } else {
+                showMessage("Try again!");
+            }
+        }
     }
 
     private void displayReimbursementItems(){
-        Account user = Authentication.getUser();
-        System.out.println(user.getEmployeeId() + " " + user.getEmail());
         List<Reimbursement> list = reimbursementManager.getReimbursements();
 
         if(list != null) {
             list.clear();
-            list = reimbursementManager.getReimbursements();
+            list = reimbursementManager.getReimbursements().stream().filter(item -> item.getStatus().equalsIgnoreCase(
+                    "draft")).collect(Collectors.toList());
         }
 
         list.forEach(item -> {
             System.out.println(
-                    "Item #" + item.getFlexReimbursementId()
+                    "Item #" + item.getFlexReimbursementDetailId()
                             + "\nDate Submitted: " +item.getDateAdded()
                             + "\nOR Number: " + item.getOrNumber()
                             + "\nName of Establishment: " + item.getNameOfEstablishment()
                             + "\nTin of Establishment: " + item.getTinOfEstablishment()
                             + "\nReimbursement Amount: " + item.getAmount()
                             + "\nTotal Reimbursement Amount: " + item.getTotalReimbursementAmount()
-                            + "\nStatus: " + item.getStatus()
+                            + "\nStatus: " + item.getStatus() + "\n"
             );
-
-            String output = String.format("Transaction Number: %s %d %s %d",
-                    Authentication.getCompany().getCode(),
-                    item.getFlexCutOffId(),
-                    item.getDateSubmitted(),
-                    item.getFlexReimbursementId());
-
-            showMessage(item.getStatus().equalsIgnoreCase("submitted") == true ?
-                     output + "\n" :
-                    "Transaction Number: none\n");
         });
     }
 

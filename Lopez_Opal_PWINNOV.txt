@@ -1,31 +1,39 @@
-Employee Name: Lopez, Opal
 Employee Number: 12035
-Date Submitted: null
-Transaction Number: none
-Amount: 3400.0
+Employee Name: Lopez, Opal
+Date Submitted: 2022-04-13
+Transaction Number: null
+Amount: Php 4900.0
+Status: draft
 
 === DETAILS ===
 CATEGORY: MEDICAL Claim Category
 
-Item # 3
-Date: 2015-05-25
-OR Number: 2332111
-Name of Establishment: Watsons
-TIN of Establishment: 2311-3222
-Amount: 2500.0
+Item # 4
+Date: 2019-03-02
+OR Number: 123111
+Name of Establishment: test estab
+TIN of Establishment: tin
+Amount: Php 1500.0
 Status: submitted
-Transaction Number: PWINNOV 3 2022-04-10 3
 
 
-Item # 15
-Date: 2021-08-03
-OR Number: 29191
-Name of Establishment: Mcdo
-TIN of Establishment: 20101-11
-Amount: 900.0
-Status: draft
-Transaction Number: null
+Item # 5
+Date: 2019-03-02
+OR Number: 1231321
+Name of Establishment: test 2
+TIN of Establishment: 2311
+Amount: Php 1600.0
+Status: submitted
 
 
 CATEGORY: PPLIANCE Claim Category
+
+Item # 6
+Date: 2018-03-02
+OR Number: 312312
+Name of Establishment: test 3
+TIN of Establishment: 2311
+Amount: Php 1800.0
+Status: submitted
+
 
